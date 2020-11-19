@@ -10,10 +10,32 @@ class BaseController extends Controller {
   success(data) {
     this.ctx.body = {
       code: 2000,
-      message: 'hahah',
+      message: '请求成功',
       data,
     };
   }
+
+  error(message = '请求出错', code = -1, errors = {}) {
+    this.ctx.body = {
+      code,
+      message,
+      errors,
+    };
+  }
+
+  notFound(msg) {
+    msg = msg || 'not found';
+    this.ctx.throw(404, msg);
+  }
+
+  msg(message) {
+    this.ctx.body = {
+      code: 2000,
+      message,
+    };
+  }
+
+ 
 }
 
 module.exports = BaseController;

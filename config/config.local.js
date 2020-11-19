@@ -16,6 +16,31 @@ exports.mysql = {
   agent: false,
 };
 
+
+
+  exports.onerror = {
+    errorPageUrl: '/50x.html',
+    
+    all(err, ctx) {
+      // 在此处定义针对所有响应类型的错误处理方法
+      // 注意，定义了 config.all 之后，其他错误处理方法不会再生效
+      ctx.body = 'error';
+      ctx.status = 500;
+    },
+    html(err, ctx) {
+      // html hander
+      ctx.body = '<h3>error</h3>';
+      ctx.status = 500;
+    },
+    json(err, ctx) {
+      // json hander
+      ctx.body = { message: 'error-----', err};
+      ctx.status = 500;
+    },
+   
+  }
+
+
 // exports.cors = {
 //   origin: 'http://localhost:3000',
 //   credentials: true,

@@ -2,8 +2,8 @@
 
 module.exports = app => {
   const { router,  controller } = app;
-  const { login, logout, getuserinfo, captcha, register } = controller;
+  const { login, logout, getuserinfo, captcha, register } = controller.user;
   router.get('/api/login', login);
   router.get('/api/logout', logout);
-  router.get('/api/register', register);
+  router.post('/api/register', register);
 };

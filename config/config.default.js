@@ -1,21 +1,13 @@
-/* eslint valid-jsdoc: "off" */
-
 'use strict';
 
-/**
- * @param {Egg.EggAppInfo} appInfo app info
- */
 module.exports = appInfo => {
-  /**
-   * built-in config
-   * @type {Egg.EggAppConfig}
-   **/
+
   const config = exports = {};
 
   config.cluster = {
     listen: {
       path: '',
-      port: 7002,
+      port: 7000,
       hostname: '0.0.0.0',
     },
   };
@@ -59,15 +51,27 @@ module.exports = appInfo => {
   };
 
 
-  // add your middleware config here
+
   config.middleware = [ 'robot', 'error' ];
 
-  // add your user config here
   const userConfig = {
     // myAppName: 'egg',
     error: {
       match: '/api',
     },
+
+    jwt: {
+      secret: 'dongaifeng',
+    },
+    qq: {
+      host: 'smtp.qq.com',
+      secureConnection: true,
+      port: '465',
+      auth: {
+        user: 'dong.aifeng@qq.com',
+        pass: 'lryurnzisadfbcea',
+      }
+    }
   };
 
   return {

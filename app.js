@@ -1,5 +1,5 @@
-
 'use strict';
+
 class AppBootHook {
   constructor(app) {
     this.app = app;
@@ -55,7 +55,7 @@ class AppBootHook {
     //   // handle socket timeout
     // });
 
-    console.log('服务器已经启动 7002');
+    console.log('服务器已经启动', this.app.config.cluster.listen.hostname,':',this.app.config.cluster.listen.port);
   }
 }
 
