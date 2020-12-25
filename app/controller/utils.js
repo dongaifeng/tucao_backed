@@ -2,6 +2,11 @@
 
 const BaseController = require('../core/base_controller');
 const svgCaptcha = require('svg-captcha');
+const path = require('path');
+const fs = require('fs');
+const sendToWormhole = require('stream-wormhole');
+const awaitWriteStream = require('await-stream-ready').write;
+const fse = require('fs-extra');
 
 class UtilController extends BaseController {
   // 生成验证码图片
@@ -45,6 +50,78 @@ class UtilController extends BaseController {
     } else {
       this.error('发送失败');
     }
+  }
+
+  async uploadBuffer() {
+    const { ctx } = this;
+    const form = ctx.req.readableBuffer.head.data;
+    
+    console.log('的arrayBuff', form);
+
+    const buffer = Buffer.from(form);
+
+    console.log('转成buffer', buffer);
+
+    const target = path.join(`app/public/uploads/buf.png`);
+    fs.writeFileSync(target, form);
+
+    this.success({
+      buffer,
+      form
+    })
+
+
+  }
+
+  // file 方式 上传
+  async uploadFile_file() {
+    const { ctx } = this;
+
+    // 拿到这个文件
+    const file = ctx.request.files[0];
+    const { filename, hashname } = ctx.request.body;
+    console.log('file---------------------->', file);
+    console.log('ctx.request---------------------->', ctx.request.body);
+
+    // 存到public目录
+    await fse.move(file.filepath, 'app/public/uploads/' + hashname + '_' + filename);
+
+
+    this.success({
+      url: `/public/${hashname + filename}`,
+    })
+  
+  }
+
+  // 文件流 方式上传, 需要去配置文件 修改  mode: 'stream'
+  async uploadFile_stream(ctx) {
+    // 获取文件流
+    const stream = await ctx.getFileStream();
+    // 生成文件名
+    const name = 'avatar_' + Date.parse(new Date()) + path.basename(stream.filename);
+    console.log('----name----->', name);
+
+    // 要写入的文件：路径+文件名
+    const target = path.join(`app/public/uploads/${name}`);
+    // 创建一个写入流
+    const writeStream = fs.createWriteStream(target);
+
+    // 文件处理
+    let result;
+    try {
+      // 异步把文件流 写入
+      await awaitWriteStream(stream.pipe(writeStream));
+    } catch (err) {
+      // 必须将上传的文件流消费掉，要不然浏览器响应会卡死
+      await sendToWormhole(stream);
+      throw err;
+    }
+
+     this.success({
+      name,
+      src: `/public/uploads/${name}`,
+    })
+    
   }
 }
 module.exports = UtilController;

@@ -3,7 +3,6 @@
 const BaseController = require('../core/base_controller'); // 使用自定义controller
 const md5 = require('md5');
 const jwt = require('jsonwebtoken');
-const await = require('await-stream-ready/lib/await');
 
 const HashSalt = 'dfkjhgsldkujr';
 const createRule = {
@@ -20,16 +19,19 @@ class User extends BaseController {
   async login() {
     const { ctx, app } = this;
     const { password, email } = ctx.request.body;
+
+
   
     // 从数据库 读取用户
     // const user = await ctx.model.User.findOne({ email, password: md5(password + HashSalt) });
-    const sql = `select * from users where users.email = ${email} and password = ${md5(password + HashSalt)}`;
-    const user = app.mysql.query(sql);
+    const sql = `select * from users where email = '${email}' and password = '${md5(password + HashSalt)}'`;
+    const res = await app.mysql.query(sql);
+    const user = res[0]
+
     if (!user) return this.error('用户不存在');
-    
     // 把用户信息 加密成token 返回
-    const token = jwt.sign({ _id: user._id, email, username: user.username }, app.config.jwt.secret, { expiresIn: '1h' });
-    this.success({ token, username: user.username, email });
+    const token = jwt.sign({ _id: user.user_id, email, username: user.user_name }, app.config.jwt.secret, { expiresIn: app.config.jwt.expiresIn });
+    this.success({ token, username: user.user_name, email });
   }
 
   async register() {
@@ -93,14 +95,84 @@ class User extends BaseController {
     ctx.body = `body: ${JSON.stringify(ctx.request.body)}`;
   }
 
-  async getuserinfo(ctx) {
-    const rule = {
-      name: { type: 'number' },
-    };
-    console.log('query', this.ctx.request.body);
-    ctx.validate(rule);
-    ctx.body = ctx.request.body;
+  async getuserinfo() {
+    const { ctx, app } = this;
+    // const { password, email } = ctx.request.body;
+    
+    // console.log('query------>',  ctx.state);
+
+    const {email, _id} = ctx.state;
+
+    const sql = `select 
+                  user_id,
+                  user_name as name,
+                  avatar,
+                  email,
+                  phone,
+                  address,
+                  country,
+                  province,
+                  city,
+                  introduce,
+                  tags
+                from users 
+                where email = '${email}' and user_id = '${_id}'`;
+    const user = await app.mysql.query(sql);
+
+    // console.log('user------>',user);
+
+
+    if (!user) return this.error('用户不存在');
+   
+    this.success(user[0]);
   }
+
+  async modifyuserinfo() {
+    const { ctx, app } = this;
+    const { city, introduce, name, phone, province, tags, country } = ctx.request.body;
+    const {email, _id} = ctx.state;
+
+    const sql = `update users
+                set
+                city='${city}',
+                country='${country}',
+                introduce='${introduce}',
+                user_name='${name}',
+                phone='${phone}',
+                province='${province}',
+                tags='${tags}',
+                update_date=NOW()
+                where email = '${email}' and user_id = '${_id}'`;
+    const res = await app.mysql.query(sql);
+    console.log(res, '<<<<>><>>')
+    if (res.affectedRows === 1) {
+      return this.success({name, email});
+    }
+    return this.error('修改用户信息失败');
+  }
+
+  async updateAvatar() {
+    const { ctx, app } = this;
+    const {email, _id} = ctx.state;
+    const file = ctx.request.files[0];
+    const { filename, hashname } = ctx.request.body;
+    const dir = '/avatars/' + hashname + '_' + filename;
+    const filePath = await this.service.tools.uploadFile_file(file, dir);
+    if (filePath) {
+      const sql = `update users
+                set
+                avatar='${filePath}',
+                update_date=NOW()
+                where email = '${email}' and user_id = '${_id}'`;
+      const res = await app.mysql.query(sql);
+      if (res.affectedRows === 1) {
+        return this.success({email, filePath});
+      }
+    }
+    
+    return this.error('修改头像失败');
+  }
+  
 
   async logout(ctx) {
     // ctx.redirect('/');

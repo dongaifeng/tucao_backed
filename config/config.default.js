@@ -1,8 +1,12 @@
 'use strict';
+const path = require('path');
 
 module.exports = appInfo => {
 
   const config = exports = {};
+  config.multipart = {
+    mode: 'file'
+  };
 
   config.cluster = {
     listen: {
@@ -62,6 +66,7 @@ module.exports = appInfo => {
 
     jwt: {
       secret: 'dongaifeng',
+      expiresIn: '100h'
     },
     qq: {
       host: 'smtp.qq.com',
@@ -71,7 +76,8 @@ module.exports = appInfo => {
         user: 'dong.aifeng@qq.com',
         pass: 'lryurnzisadfbcea',
       }
-    }
+    },
+    uploaddir: path.resolve(__dirname, '../', 'app/public/uploads/'),
   };
 
   return {

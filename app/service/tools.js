@@ -1,9 +1,9 @@
 'use strict';
 
 const Service = require('egg').Service;
-const fse = require('fs-extra');
-const path = require('path');
 const nodemailer = require('nodemailer');
+const path = require('path');
+const fse = require('fs-extra');
 
 class Tools extends Service {
 
@@ -24,6 +24,22 @@ class Tools extends Service {
       console.log('err', e);
       return false
     }
+  }
+
+
+  async uploadFile_file(file, dir) {
+    const uploaddir = this.config.uploaddir;
+    // 存到public目录
+    try {
+      await fse.move(file.filepath, uploaddir + dir);
+      return `/public/uploads/${dir}`;
+      
+    } catch (e) {
+      console.log('err', e);
+      return false;
+    }
+
+    
   }
 
 }
