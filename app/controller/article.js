@@ -7,11 +7,7 @@ class ArticleController extends BaseController {
 
   async index() {
     const {ctx, app} = this;
-
     const { page, size} = ctx.query;
-
-    console.log('get请求------》', page, size);
-
     const res = await ctx.service.article.query({ page, size});
 
     this.success(res)
@@ -39,6 +35,46 @@ class ArticleController extends BaseController {
 
   async update() {
     this.success([])
+  }
+
+  async collect() {
+    // 收藏文章
+    // 检查是否已收藏 查询 user_id and article_id 对应的一条数据
+    // 查到 就是取消收藏
+    // 查不到 就是收藏
+    // 1 将 user_id article_id 插入到 collect表
+    // 查询 新的列表 返回到前台
+    const {ctx, app} = this;
+    const { id } = ctx.request.body;
+    const {email, _id} = ctx.state;
+
+    const res = await app.mysql.query(`select * from collect where user_id=${_id} and article_id=${id}`);
+
+    console.log(res, '<----');
+    if(res.length > 0) {
+
+      const sql = `delete from collect where user_id=${_id} and article_id=${id}`;
+      const res = await app.mysql.query(sql);
+      if (res.affectedRows > 0) { this.success({ status: 'ok' }, '取消收藏成功！') };  
+
+    } else {
+      const sql = `INSERT INTO collect (user_id, article_id, create_date, update_date)
+            VALUES (${_id}, ${id}, NOW(), NOW())`;
+      const res = await app.mysql.query(sql);
+      if (res.affectedRows === 1) { this.success({ status: 'ok' }, '收藏成功！') };
+     
+    }
+  }
+
+  async like() {
+    const {ctx, app} = this;
+    const { id } = ctx.request.body;
+    const article = await app.mysql.query(`select likes from articles where id = ${id}`);
+    const num = article[0].likes + 1;
+    console.log(article, '<-----')
+    const sql = `update articles set likes=${num} where id=${id}`;
+    const res = await app.mysql.query(sql);
+    if (res.affectedRows === 1) { this.success({ status: 'ok' }, '点赞成功！') };
   }
 
 
