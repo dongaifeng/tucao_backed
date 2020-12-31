@@ -4,6 +4,7 @@ const Service = require('egg').Service;
 module.exports = class extends Service {
 
   async query({ page, size}) {
+    const { app } = this;
     const sql = `select 
                   u.user_name as ownerName,
                   a.title,
@@ -21,13 +22,26 @@ module.exports = class extends Service {
                 on a.owner = u.user_id
                 limit ${(page - 1) * size}, ${size}`;
 
+    let res = await app.mysql.query(sql);
 
-    let res = await this.app.mysql.query(sql);
+    if(res.length < 0 || !Array.isArray(res)) {
+      return this.success([])
+    }
+
+    // 创建一个数组， 遍历list 每一项返回一个Promise，在peomise里面创建一个对象，查询star 并赋值给这个对象，返回这个对象，
+    // 把这个Promise 放入 数组，等到数组中 所有的 resolve 就success
+    const arr = [];
     res.forEach(ele => {
-      ele.star = ele.star && ele.star.split(',');
-    });
+      arr.push(new Promise(async (resolve) => {
+        const users = await app.mysql.query(`select user_id from collect where article_id=${ele.id}`) || [];
+        const star = users.map(i => i.user_id)
+        resolve({...ele, star}) 
+      }))
+    })
 
-    return res;
+   const list = await Promise.all(arr);
+
+    return list;
 
   }
 

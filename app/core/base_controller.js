@@ -26,10 +26,10 @@ class BaseController extends Controller {
     return this.ctx.session.user;
   }
 
-  success(data) {
+  success(data, msg) {
     this.ctx.body = {
       code: codeType.success,
-      message: '请求成功',
+      message: msg || '请求成功',
       data,
     };
   }
