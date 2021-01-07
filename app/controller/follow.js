@@ -21,28 +21,35 @@ class Follow extends BaseController {
   }
 
   async followUserId() {
+    // 先查看 follows表用没有 这条数据
+    // 有 把 del_flag = 1
+    // 没有 插入 并 del_flag = 0
     const { ctx, app } = this;
     const { beFollowId } = ctx.request.body;
     const { email, _id } = ctx.state;
+    let res;
+    const arr = await ctx.service.follow.query(_id, beFollowId);
 
-    const sql = `INSERT INTO follows
-                (user_id, fans_id)
-                VALUES(${beFollowId}, ${_id})`;
+    if(arr.length > 0) {
+      res = await ctx.service.follow.updateDelFlag(_id, beFollowId, 0);
+    } else {
+      res = await ctx.service.follow.insert(_id, beFollowId);
+    }
 
-    const res = await app.mysql.query(sql);
-
-    if (res.affectedRows === 1) { 
+    if (res && res.affectedRows === 1) { 
       this.success({beFollowId}, '关注成功！') 
     };
   }
 
   async cancelFollow() {
     const { ctx, app } = this;
-    const { id } = ctx.request.body;
+    const { beFollowId } = ctx.request.body;
+    const { email, _id } = ctx.state;
 
-    const sql = ``;
-    const res = await ctx.mysql.query(sql);
-    this.success({ res });
+    const res = await ctx.service.follow.updateDelFlag(_id, beFollowId, 1);;
+    if (res.affectedRows === 1) { 
+      this.success({beFollowId}, '取消关注成功！') 
+    };
   }
 }
 
