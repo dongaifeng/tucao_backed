@@ -11,7 +11,7 @@ class Follow extends BaseController {
 
     const sql = `SELECT * FROM users
                   WHERE user_id IN (
-                    SELECT follow_id FROM follows
+                    SELECT fans_id FROM follows
                     WHERE user_id = ${_id}
                   )`;
     const user = await app.mysql.query(sql);
@@ -22,12 +22,18 @@ class Follow extends BaseController {
 
   async followUserId() {
     const { ctx, app } = this;
-    const { id } = ctx.request.body;
+    const { beFollowId } = ctx.request.body;
+    const { email, _id } = ctx.state;
 
-    const sql = ``;
+    const sql = `INSERT INTO follows
+                (user_id, fans_id)
+                VALUES(${beFollowId}, ${_id})`;
+
     const res = await app.mysql.query(sql);
 
-    this.success({ res })
+    if (res.affectedRows === 1) { 
+      this.success({beFollowId}, '关注成功！') 
+    };
   }
 
   async cancelFollow() {

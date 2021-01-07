@@ -5,6 +5,34 @@ module.exports = class extends Service {
 
   async query({ page, size}) {
     const { app } = this;
+    const sql = `select *from v_articles limit ${(page - 1) * size}, ${size}`;
+
+    let res = await app.mysql.query(sql);
+
+    if(res.length < 0 || !Array.isArray(res)) {
+      return this.success([])
+    }
+
+    // 创建一个数组， 遍历list 每一项返回一个Promise，在peomise里面创建一个对象，查询star 并赋值给这个对象，返回这个对象，
+    // 把这个Promise 放入 数组，等到数组中 所有的 resolve 就success
+    const arr = [];
+    res.forEach(ele => {
+      arr.push(new Promise(async (resolve) => {
+        const users = await app.mysql.query(`select user_id from collect where article_id=${ele.id}`) || [];
+        const star = users.map(i => i.user_id)
+        resolve({...ele, star}) 
+      }))
+    })
+
+   const list = await Promise.all(arr);
+
+    return list;
+
+  }
+
+
+  async query2({ page, size}) {
+    const { app } = this;
     const sql = `select 
                   u.user_name as ownerName,
                   a.title,
@@ -12,7 +40,7 @@ module.exports = class extends Service {
                   content,
                   likes,
                   u.avatar as avatar,
-                  message,
+                  comments,
                   star,
                   owner,
                   a.create_date as createdAt,
@@ -56,5 +84,11 @@ module.exports = class extends Service {
 
     return res;
   }
-}
-;
+
+  async queryComment(articleId) {
+    const sql = `select * from v_comments where articleId = ${articleId}`;
+    const res = await this.app.mysql.query(sql);
+
+    return res;
+  }
+};

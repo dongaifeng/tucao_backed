@@ -77,6 +77,28 @@ class ArticleController extends BaseController {
     if (res.affectedRows === 1) { this.success({ status: 'ok' }, '点赞成功！') };
   }
 
+  async queryComment() {
+    const {ctx} = this;
+    const { articleId } = ctx.request.body;
+    const res = await ctx.service.article.queryComment(articleId);
+    
+    console.log(res, '<-----')
+    this.success(res);
+  }
+
+  async createComment() {
+    const { ctx, app } = this;
+    const { comment, articleId, userId = null } = ctx.request.body;
+
+    const sql = `INSERT INTO comments(article_id, body, owner) VALUES(${articleId}, '${comment}', ${userId})`;
+    const res = await app.mysql.query(sql);
+
+    if (res.affectedRows === 1) { 
+      const arr = await ctx.service.article.queryComment(articleId);
+      this.success(arr, '评论成功！') 
+    };
+  }
+
 
 }
 
