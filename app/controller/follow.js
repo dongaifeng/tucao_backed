@@ -9,7 +9,9 @@ class Follow extends BaseController {
     const { ctx, app } = this;
     const { email, _id } = ctx.state;
 
-    const sql = `SELECT * FROM users
+    const sql = `SELECT *, f.del_flag FROM users u
+                  left jion follows f
+                  on u.user_id = f.user_id
                   WHERE user_id IN (
                     SELECT fans_id FROM follows
                     WHERE user_id = ${_id}
