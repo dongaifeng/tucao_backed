@@ -20,7 +20,7 @@ const codeType = {
 
 class BaseController extends Controller {
 
-  // static codeType = codeType;
+  static codeType = codeType;
 
   get user() {
     return this.ctx.session.user;
