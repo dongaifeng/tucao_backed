@@ -9,13 +9,19 @@ class Follow extends BaseController {
     const { ctx, app } = this;
     const { email, _id } = ctx.state;
 
-    const sql = `SELECT *, f.del_flag FROM users u
-                  left jion follows f
-                  on u.user_id = f.user_id
-                  WHERE user_id IN (
-                    SELECT fans_id FROM follows
-                    WHERE user_id = ${_id}
-                  )`;
+    const sql = `SELECT
+                  u.user_id,
+                  u.introduce,
+                  u.avatar,
+                  u.user_name,
+                  f.del_flag 
+                FROM users u
+                left join follows f
+                on u.user_id = f.user_id
+                WHERE u.user_id IN (
+                  SELECT fans_id FROM follows
+                  WHERE user_id = ${_id}
+                )`;
     const user = await app.mysql.query(sql);
 
     if (!user) return this.error('查询不到关注者');
