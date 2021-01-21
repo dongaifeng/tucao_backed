@@ -5,26 +5,24 @@ const await = require('await-stream-ready/lib/await');
 
 class Follow extends BaseController {
 
-  async queryByUserId() {
+  async queryFollows() {
     const { ctx, app } = this;
     const { email, _id } = ctx.state;
+    console.log('0000000000000000000000000000')
 
-    const sql = `SELECT
-                  u.user_id,
-                  u.introduce,
-                  u.avatar,
-                  u.user_name,
-                  f.del_flag 
-                FROM users u
-                left join follows f
-                on u.user_id = f.user_id
-                WHERE u.user_id IN (
-                  SELECT fans_id FROM follows
-                  WHERE user_id = ${_id}
-                )`;
-    const user = await app.mysql.query(sql);
+    const user = await ctx.service.follow.queryByUserId({user_id: _id});
 
     if (!user) return this.error('查询不到关注者');
+    this.success(user);
+  }
+
+  async queryFans() {
+    console.log('0000000000000000000000000000')
+    const { ctx, app } = this;
+    const { email, _id } = ctx.state; 
+    const user = await ctx.service.follow.queryByUserId({fans_id: _id});
+
+    if (!user) return this.error('查询不到粉丝');
     this.success(user);
   }
 
