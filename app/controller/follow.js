@@ -5,22 +5,21 @@ const await = require('await-stream-ready/lib/await');
 
 class Follow extends BaseController {
 
-  async queryFollows() {
+  // 查询我关注了谁
+  async queryIdols() {
     const { ctx, app } = this;
     const { email, _id } = ctx.state;
-    console.log('0000000000000000000000000000')
 
-    const user = await ctx.service.follow.queryByUserId({user_id: _id});
+    const user = await ctx.service.follow.queryIdolByUserId(_id);
 
     if (!user) return this.error('查询不到关注者');
     this.success(user);
   }
 
   async queryFans() {
-    console.log('0000000000000000000000000000')
     const { ctx, app } = this;
     const { email, _id } = ctx.state; 
-    const user = await ctx.service.follow.queryByUserId({fans_id: _id});
+    const user = await ctx.service.follow.queryFansByUserId( _id);
 
     if (!user) return this.error('查询不到粉丝');
     this.success(user);
