@@ -4,7 +4,7 @@ const Service = require('egg').Service;
 module.exports = class Follow extends Service {
 
   async query(_id, beFollowId) {
-    const sql = `select * follows where user_id=${beFollowId} and fans_id=${_id}`;
+    const sql = `select * from follows where user_id=${beFollowId} and fans_id=${_id}`;
     const result = await this.app.mysql.query(sql);
     return result || [];
   }
@@ -18,7 +18,7 @@ module.exports = class Follow extends Service {
   async insert(_id, beFollowId) {
     const sql = `INSERT INTO follows(user_id, fans_id) VALUES(${beFollowId}, ${_id})`;
 
-    const res = await app.mysql.query(sql);
+    const res = await this.app.mysql.query(sql);
     return res;
   }
 

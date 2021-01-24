@@ -26,7 +26,7 @@ class Follow extends BaseController {
   }
 
   async followUserId() {
-    // 先查看 follows表用没有 这条数据
+    // 先查看 follows表用没有: fans_id是state._id, user_id是request.body.userId
     // 有 把 del_flag = 1
     // 没有 插入 并 del_flag = 0
     const { ctx, app } = this;
@@ -34,6 +34,7 @@ class Follow extends BaseController {
     const { email, _id } = ctx.state;
     let res;
     const arr = await ctx.service.follow.query(_id, beFollowId);
+    console.log('arr---->', arr)
 
     if(arr.length > 0) {
       res = await ctx.service.follow.updateDelFlag(_id, beFollowId, 0);

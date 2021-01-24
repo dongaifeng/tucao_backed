@@ -127,6 +127,34 @@ class User extends BaseController {
     this.success(user[0]);
   }
 
+  async postuserinfo() {
+    const { ctx, app } = this;
+    const { userId } = ctx.request.body;
+
+    const sql = `select 
+                  user_id,
+                  user_name as name,
+                  avatar,
+                  email,
+                  phone,
+                  address,
+                  country,
+                  province,
+                  city,
+                  introduce,
+                  tags
+                from users 
+                where user_id = ?`;
+    const user = await app.mysql.query(sql, [userId]);
+
+    // console.log('user------>',user);
+
+
+    if (!user) return this.error('用户不存在');
+   
+    this.success(user[0]);
+  }
+
   async modifyuserinfo() {
     const { ctx, app } = this;
     const { city, introduce, name, phone, province, tags, country } = ctx.request.body;

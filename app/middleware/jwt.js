@@ -33,7 +33,7 @@ module.exports = app => {
       await next();
 
     } catch (e) {
-      // console.log('错误信息', e);
+      console.log('错误信息', e);
       if (e.name === 'TokenExpiredError') {
         ctx.body = {
           code: BaseController.codeType.timeout,

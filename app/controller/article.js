@@ -1,7 +1,6 @@
 'use strict';
 
 const BaseController = require('../core/base_controller');
-const await = require('await-stream-ready/lib/await');
 
 class ArticleController extends BaseController {
 
@@ -9,7 +8,7 @@ class ArticleController extends BaseController {
     const {ctx, app} = this;
     const { page, size} = ctx.query;
     const res = await ctx.service.article.query({ page, size});
-
+    console.log('res---index-->', res)
     this.success(res)
   }
 
@@ -25,16 +24,36 @@ class ArticleController extends BaseController {
     if (res.affectedRows === 1) { this.success({ status: 'ok' }) }
   }
 
-  async show() {
-    this.success([])
-  }
+  // async show() {
+  //   this.success([])
+  // }
 
-  async new () {
-    this.success([])
-  }
+  // async new () {
+  //   this.success([])
+  // }
 
-  async update() {
-    this.success([])
+  // async update() {
+  //   this.success([])
+  // }
+
+  async queryCollect() {
+
+    const {ctx, app} = this;
+    const {email, _id} = ctx.state;
+    const sql = `
+                SELECT a.id, a.title, a.content, a.owner, a.user_name, DATE_FORMAT(c.create_date,'%Y年%m月%d日%h:%i:%s') as create_date FROM (
+                  SELECT articles.*, u.user_name from articles 
+                  RIGHT JOIN users u 
+                  ON articles.owner = u.user_id
+                ) AS a 
+                RIGHT JOIN collect c
+                ON a.id = c.article_id 
+                WHERE c.user_id = ${_id} `;
+    
+    // 使用 mysql.escape 方法。防止sql注入，并且 调用了  存储过程。
+    const res = await app.mysql.query(`CALL p_query_collect(?)`, [_id]);
+    console.log('000000', res)
+    this.success(res[0]);
   }
 
   async collect() {

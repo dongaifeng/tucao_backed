@@ -5,7 +5,7 @@ module.exports = class extends Service {
 
   async query({ page, size}) {
     const { app } = this;
-    const sql = `select *from v_articles limit ${(page - 1) * size}, ${size}`;
+    const sql = `select * from v_articles limit ${(page - 1) * size}, ${size}`;
 
     let res = await app.mysql.query(sql);
 

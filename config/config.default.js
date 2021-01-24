@@ -56,7 +56,7 @@ module.exports = appInfo => {
 
 
 
-  config.middleware = [ 'robot', 'error' ];
+  config.middleware = [ 'log', 'robot', 'error' ];
 
   const userConfig = {
     // myAppName: 'egg',
