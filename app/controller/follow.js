@@ -16,6 +16,7 @@ class Follow extends BaseController {
     this.success(user);
   }
 
+  // 查询 粉丝
   async queryFans() {
     const { ctx, app } = this;
     const { email, _id } = ctx.state; 
@@ -25,6 +26,7 @@ class Follow extends BaseController {
     this.success(user);
   }
 
+  // 关注
   async followUserId() {
     // 先查看 follows表用没有: fans_id是state._id, user_id是request.body.userId
     // 有 把 del_flag = 1
@@ -47,12 +49,13 @@ class Follow extends BaseController {
     };
   }
 
+  // 取消关注 
   async cancelFollow() {
     const { ctx, app } = this;
     const { beFollowId } = ctx.request.body;
     const { email, _id } = ctx.state;
 
-    const res = await ctx.service.follow.updateDelFlag(_id, beFollowId, 1);;
+    const res = await ctx.service.follow.updateDelFlag(_id, beFollowId, 1);
     if (res.affectedRows === 1) { 
       this.success({beFollowId}, '取消关注成功！') 
     };

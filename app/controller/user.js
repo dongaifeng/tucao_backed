@@ -129,7 +129,7 @@ class User extends BaseController {
 
   async postuserinfo() {
     const { ctx, app } = this;
-    const { userId } = ctx.request.body;
+    const { userId, currentUserId } = ctx.request.body;
 
     const sql = `select 
                   user_id,
@@ -142,17 +142,28 @@ class User extends BaseController {
                   province,
                   city,
                   introduce,
+                  fans_count as fansCount,
+                  follow_count as followCount,
+                  article_count as articleCount,
                   tags
-                from users 
+                from v_users 
                 where user_id = ?`;
-    const user = await app.mysql.query(sql, [userId]);
+    let [user] = await app.mysql.query(sql, [userId]);
+    let followStatus = false;
+    if (currentUserId) {
+      const arr = await ctx.service.follow.query(userId, currentUserId);
+      console.log('arr---->', arr)
+      if (arr.length > 0) {
+        followStatus = true
+      }
+    }
 
-    // console.log('user------>',user);
+    console.log('user------>',user);
 
 
     if (!user) return this.error('用户不存在');
    
-    this.success(user[0]);
+    this.success({...user, followStatus});
   }
 
   async modifyuserinfo() {
