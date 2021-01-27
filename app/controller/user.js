@@ -152,9 +152,9 @@ class User extends BaseController {
     let followStatus = false;
     if (currentUserId) {
       const arr = await ctx.service.follow.query(userId, currentUserId);
-      console.log('arr---->', arr)
+      console.log('arr---->', arr[0])
       if (arr.length > 0) {
-        followStatus = true
+        followStatus = arr[0].del_flag === 0
       }
     }
 
@@ -188,6 +188,20 @@ class User extends BaseController {
       return this.success({name, email});
     }
     return this.error('修改用户信息失败');
+  }
+
+  async addTags() {
+    const { ctx, app } = this;
+    const { tags, tadInUserId } = ctx.request.body;
+    const sql = `update users
+                set tags=?
+                where user_id=?`;
+    const res = await app.mysql.query(sql, [tags, tadInUserId]);
+    console.log(res, '<<<<>><>>')
+    if (res.affectedRows === 1) {
+      return this.success({}, '添加标签成功');
+    }
+    return this.error('添加标签败');
   }
 
   async updateAvatar() {

@@ -24,9 +24,15 @@ class ArticleController extends BaseController {
     if (res.affectedRows === 1) { this.success({ status: 'ok' }) }
   }
 
-  // async show() {
-  //   this.success([])
-  // }
+  async show() {
+    const {ctx, app} = this;
+    const { id } = ctx.params;
+
+    const { page = 1, size = 100} = ctx.query;
+    const res = await ctx.service.article.query({ page, size, where: `where owner=${id}`});
+    console.log('res---index-->', res)
+    this.success(res)
+  }
 
   // async new () {
   //   this.success([])
