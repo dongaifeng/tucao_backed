@@ -127,6 +127,7 @@ class User extends BaseController {
     this.success(user[0]);
   }
 
+  // 通过user_id查询 用户信息
   async postuserinfo() {
     const { ctx, app } = this;
     const { userId, currentUserId } = ctx.request.body;

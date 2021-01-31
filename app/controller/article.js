@@ -34,6 +34,20 @@ class ArticleController extends BaseController {
     this.success(res)
   }
 
+  async queryFollowArticles() {
+    const { ctx, app } = this;
+    const { email, _id } = ctx.state;
+    const { page = 1, size = 100} = ctx.query;
+
+    const user = await ctx.service.follow.queryIdolByUserId(_id);
+    const arr = user.map(i => i.user_id);
+    console.log(arr)
+
+    const res = await ctx.service.article.query({ page, size, where: `where owner in (${arr})`});
+    console.log('res---index-->', res)
+    this.success(res)
+  }
+
   // async new () {
   //   this.success([])
   // }
@@ -42,6 +56,7 @@ class ArticleController extends BaseController {
   //   this.success([])
   // }
 
+  // 查询收藏的文章
   async queryCollect() {
 
     const {ctx, app} = this;
@@ -62,6 +77,7 @@ class ArticleController extends BaseController {
     this.success(res[0]);
   }
 
+  // 收藏
   async collect() {
     // 收藏文章
     // 检查是否已收藏 查询 user_id and article_id 对应的一条数据
@@ -91,6 +107,7 @@ class ArticleController extends BaseController {
     }
   }
 
+  // 点赞文章
   async like() {
     const {ctx, app} = this;
     const { id } = ctx.request.body;
@@ -102,6 +119,7 @@ class ArticleController extends BaseController {
     if (res.affectedRows === 1) { this.success({ status: 'ok' }, '点赞成功！') };
   }
 
+  // 查看评论
   async queryComment() {
     const {ctx} = this;
     const { articleId } = ctx.request.body;
@@ -111,6 +129,7 @@ class ArticleController extends BaseController {
     this.success(res);
   }
 
+  // 创建评论
   async createComment() {
     const { ctx, app } = this;
     const { comment, articleId, userId = null } = ctx.request.body;
