@@ -4,11 +4,11 @@ exports.mysql = {
   // 单数据库信息配置
   client: {
 
-    host: '47.105.185.203',
+    host: '8.141.49.190',
     port: '3306',
     user: 'root',
-    password: 'mimashi123',
-    database: 'dongaf',
+    password: '0518',
+    database: 'tucao',
   },
   // 是否加载到 app 上，默认开启
   app: true,

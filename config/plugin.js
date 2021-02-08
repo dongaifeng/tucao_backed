@@ -30,6 +30,10 @@ module.exports = {
   routerPlus: {
     enable: false,
     package: 'egg-router-plus',
-  }
+  },
+  alinode: {
+    enable: false,
+    package: 'egg-alinode',
+  },
 };
 

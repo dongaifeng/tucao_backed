@@ -18,12 +18,13 @@ class ArticleController extends BaseController {
     const { user_id, content } = ctx.request.body;
     const { name, avatar } = await ctx.service.user.getuserById(user_id);
     // console.log('post请求------》', ctx.request.body)
-    const sql = `INSERT INTO articles (title, id, content, likes, avatar, message, star, owner, create_date, update_date)
-                VALUES ('${name}', null, '${content}', null, '${avatar}', '', null, ${user_id}, NOW(), NOW())`;
+    const sql = `INSERT INTO articles (title, id, content, likes, avatar, star, owner, create_date, update_date)
+                VALUES ('${name}', null, '${content}', null, '${avatar}', null, ${user_id}, NOW(), NOW())`;
     const res = await app.mysql.query(sql);
     if (res.affectedRows === 1) { this.success({ status: 'ok' }) }
   }
 
+  // 查询某用户的文章
   async show() {
     const {ctx, app} = this;
     const { id } = ctx.params;

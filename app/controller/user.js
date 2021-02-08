@@ -44,10 +44,8 @@ class User extends BaseController {
     try {
       ctx.validate(createRule);
     } catch (e) {
-      return this.error('输入内容有误，请检查', -1, e.errors);
+      return this.error('输入内容有误，请检查', e.errors);
     }
-
-
 
     if (emailCode !== ctx.session.emailCode) {
       return this.error('邮箱验证码错误，请查看邮箱');
@@ -77,7 +75,7 @@ class User extends BaseController {
         if (res.affectedRows === 1) { this.success({ name: username, status: 'ok' }) }
       }
     } else {
-      this.error('验证码错误，情输入图片中的字母');
+      this.error('验证码错误，请输入图片中的字母');
     }
   }
 

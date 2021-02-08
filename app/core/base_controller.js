@@ -34,7 +34,7 @@ class BaseController extends Controller {
     };
   }
 
-  error(message = '请求出错', code = codeType.error, errors = {}) {
+  error(message = '请求出错', errors = {}, code = codeType.error) {
     this.ctx.body = {
       code,
       message,
