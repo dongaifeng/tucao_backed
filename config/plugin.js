@@ -32,7 +32,7 @@ module.exports = {
     package: 'egg-router-plus',
   },
   alinode: {
-    enable: false,
+    enable: true,
     package: 'egg-alinode',
   },
 };
